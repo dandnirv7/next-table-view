@@ -14,7 +14,7 @@ export const users: Users[] = Array.from({ length: 20 }, () => {
     email: faker.internet.email({ firstName }).toLocaleLowerCase(),
     password: `${firstName}123`,
     status: faker.helpers.arrayElement(["active", "inactive"]),
-    role: faker.helpers.arrayElement(["superadmin", "admin", "user"]),
+    role: faker.helpers.arrayElement(["super admin", "admin", "user"]),
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent(),
     deletedAt: null,
