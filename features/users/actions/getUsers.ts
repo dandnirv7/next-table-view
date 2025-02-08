@@ -1,37 +1,61 @@
 import prisma from "@/lib/db";
-import { GetUsersResponse, User } from "../types/users";
+import { Prisma } from "@prisma/client";
 import { selectOptions } from "../lib/users";
+import { GetUsersResponse, User } from "../types/users";
 
 export async function getUsers(
   page: number = 1,
   perPage: number = 10,
   filters: Partial<User> = {},
+  search: string = "",
   sortBy: keyof User = "id",
   sortOrder: "asc" | "desc" = "asc"
 ): Promise<GetUsersResponse> {
-  const offset = (page - 1) * perPage;
+  page = Math.max(page, 1);
+
+  const whereConditions: Prisma.UsersWhereInput = {
+    AND: [
+      filters.status ? { status: filters.status } : {},
+      filters.role ? { role: filters.role } : {},
+      filters.username
+        ? { username: { contains: filters.username, mode: "insensitive" } }
+        : {},
+      search
+        ? {
+            OR: [
+              { username: { contains: search, mode: "insensitive" } },
+              { fullName: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : {},
+    ],
+  };
 
   try {
-    const users = await prisma.users.findMany({
-      where: filters,
-      select: selectOptions,
-      skip: offset,
-      take: perPage,
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
-    });
+    const [totalUsers, users] = await Promise.all([
+      prisma.users.count({ where: whereConditions }),
+      prisma.users.findMany({
+        where: whereConditions,
+        select: selectOptions,
+        skip: (page - 1) * perPage,
+        take: perPage,
+        orderBy: {
+          [sortBy]: sortOrder,
+        },
+      }),
+    ]);
 
-    const totalUsers = await prisma.users.count({ where: filters });
-    const total_pages = Math.ceil(totalUsers / perPage);
+    const totalPages = Math.ceil(totalUsers / perPage);
+    const currentPage = page > totalPages ? totalPages : page;
 
     return {
       status: "success",
       data: {
         users: users,
-        limit: users.length,
-        total_pages: total_pages,
-        current_page: page,
+        limit: perPage,
+        total_users: totalUsers,
+        total_pages: totalPages,
+        current_page: currentPage,
         message: "Users fetched successfully",
       },
     };
@@ -42,9 +66,12 @@ export async function getUsers(
       data: {
         users: [],
         limit: 0,
+        total_users: 0,
         total_pages: 0,
         current_page: 0,
-        message: "Failed to fetch users",
+        message: `Failed to fetch users: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
       },
     };
   }

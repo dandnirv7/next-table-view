@@ -12,6 +12,7 @@ export type GetUsersResponse = {
   data: {
     users: User[];
     limit: number;
+    total_users: number;
     total_pages: number;
     current_page: number;
     message: string;

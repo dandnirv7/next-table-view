@@ -21,6 +21,8 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  const pageOptions = [10, 20, 30, 40, 50];
+
   return (
     <div className="flex items-center justify-between overflow-auto px-2">
       <div className="hidden flex-1 text-sm text-muted-foreground sm:block">
@@ -40,7 +42,7 @@ export function DataTablePagination<TData>({
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
+              {pageOptions.map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
                 </SelectItem>

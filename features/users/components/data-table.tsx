@@ -1,6 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -16,17 +23,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { DataTableToolbar } from "./data-table-toolbar";
-import { DataTablePagination } from "./data-table-pagination";
+import { useState } from "react";
 import { User } from "../types/users";
+import { DataTableToolbar } from "./data-table-toolbar";
+
+import { DataTablePagination } from "./data-table-pagination";
+import { useTablePagination } from "./use-table-pagination";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -38,34 +40,43 @@ declare module "@tanstack/react-table" {
 interface DataTableProps {
   columns: ColumnDef<User>[];
   data: User[];
+  totalItems: number;
 }
 
-export function DataTable({ columns, data }: DataTableProps) {
+export function DataTable({ columns, data, totalItems }: DataTableProps) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  const { paginationState, handlePaginationChange, pageCount } =
+    useTablePagination({ totalItems });
+
   const table = useReactTable({
     data,
     columns,
+    pageCount,
     state: {
       sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
+      pagination: paginationState,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: handlePaginationChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    manualPagination: true,
+    manualFiltering: true,
   });
 
   return (
