@@ -19,7 +19,7 @@ export const statusTypes = [
 
 export const userTypes = [
   {
-    label: "Superadmin",
+    label: "Super Admin",
     value: "super admin",
     icon: IconShield,
   },

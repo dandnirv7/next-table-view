@@ -7,6 +7,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { callTypes, userTypes } from "../data/data";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { User } from "../types/users";
+import { DataTableRowActions } from "./data-table-row-actions";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -108,5 +109,10 @@ export const columns: ColumnDef<User>[] = [
     },
     enableSorting: false,
     enableHiding: false,
+  },
+
+  {
+    id: "actions",
+    cell: ({ row }) => <DataTableRowActions row={row.original} />,
   },
 ];
