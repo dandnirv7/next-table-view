@@ -13,8 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { User } from "../data/schema";
-import { formSchema, UserForm } from "../types/users";
+import { formSchema, User, UserForm } from "../types/users";
 import { InnerFormAction } from "./inner-form-action";
 
 interface Props {

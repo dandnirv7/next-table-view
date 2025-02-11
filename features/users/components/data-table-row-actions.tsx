@@ -24,8 +24,9 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { IconAlertTriangle, IconEdit, IconTrash } from "@tabler/icons-react";
-import { ChangeEvent, useCallback, useState } from "react";
-import { User } from "../data/schema";
+import { useRouter } from "next/navigation";
+import { ChangeEvent, useState } from "react";
+import { User } from "../types/users";
 import { UsersActionDialog } from "./users-action-dialog";
 
 interface DataTableRowActionsProps {
@@ -33,6 +34,8 @@ interface DataTableRowActionsProps {
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
+  const router = useRouter();
+
   const [state, setState] = useState({
     open: false,
     value: "",
@@ -46,24 +49,41 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 
   const { toast } = useToast();
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = async () => {
     if (debouncedValue.trim() !== currentUser) return;
 
-    toast({
-      title: "The following user has been deleted:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(row, null, 2)}</code>
-        </pre>
-      ),
-    });
-    setState((prevState) => ({
-      ...prevState,
-      open: false,
-      value: "",
-      disabled: true,
-    }));
-  }, [debouncedValue, currentUser, row, toast]);
+    try {
+      const response = await fetch(`/api/users/${row.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete user with ID: ${row.id}`);
+      }
+
+      toast({
+        title: "The following user has been deleted:",
+        description: (
+          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+            <code className="text-white">{JSON.stringify(row, null, 2)}</code>
+          </pre>
+        ),
+      });
+      setState((prevState) => ({
+        ...prevState,
+        open: false,
+        value: "",
+        disabled: true,
+      }));
+
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
