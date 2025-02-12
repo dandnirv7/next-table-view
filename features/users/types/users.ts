@@ -10,7 +10,7 @@ export type User = {
 };
 
 export type GetUsersResponse = {
-  status: string;
+  status: boolean;
   data: {
     users: User[];
     limit: number;
@@ -29,49 +29,50 @@ export const formSchema = z
       .string()
       .min(1, { message: "Email is required." })
       .email({ message: "Email is invalid." }),
-    password: z.string().transform((pwd) => pwd.trim()),
+    password: z
+      .string()
+      .optional()
+      .transform((pwd) => (pwd ?? "").trim()),
+
     role: z.string().min(1, { message: "Role is required." }),
-    confirmPassword: z.string().transform((pwd) => pwd.trim()),
+    confirmPassword: z
+      .string()
+      .optional()
+      .transform((pwd) => (pwd ?? "").trim()),
   })
   .superRefine(({ password, confirmPassword }, ctx) => {
-    if (password === "") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Password is required.",
-        path: ["password"],
-      });
-    }
+    if (password && password !== "") {
+      if (password.length < 8) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Password must be at least 8 characters long.",
+          path: ["password"],
+        });
+      }
 
-    if (password.length < 8) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Password must be at least 8 characters long.",
-        path: ["password"],
-      });
-    }
+      if (!password.match(/[a-z]/)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Password must contain at least one lowercase letter.",
+          path: ["password"],
+        });
+      }
 
-    if (!password.match(/[a-z]/)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Password must contain at least one lowercase letter.",
-        path: ["password"],
-      });
-    }
+      if (!password.match(/\d/)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Password must contain at least one number.",
+          path: ["password"],
+        });
+      }
 
-    if (!password.match(/\d/)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Password must contain at least one number.",
-        path: ["password"],
-      });
-    }
-
-    if (password !== confirmPassword) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Passwords don't match.",
-        path: ["confirmPassword"],
-      });
+      if (password !== confirmPassword) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Passwords don't match.",
+          path: ["confirmPassword"],
+        });
+      }
     }
   });
 

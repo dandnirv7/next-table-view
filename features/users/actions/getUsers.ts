@@ -49,7 +49,7 @@ export async function getUsers(
     const currentPage = page > totalPages ? totalPages : page;
 
     return {
-      status: "success",
+      status: true,
       data: {
         users: users,
         limit: perPage,
@@ -62,7 +62,7 @@ export async function getUsers(
   } catch (error) {
     console.error("Error fetching users:", error);
     return {
-      status: "error",
+      status: false,
       data: {
         users: [],
         limit: 0,
