@@ -13,6 +13,21 @@ export async function getUsers(
 ): Promise<GetUsersResponse> {
   page = Math.max(page, 1);
 
+  const validStatus = ["active", "inactive"];
+  if (filters.status && !validStatus.includes(filters.status)) {
+    return {
+      status: false,
+      data: {
+        users: [],
+        limit: 0,
+        total_users: 0,
+        total_pages: 0,
+        current_page: 0,
+        message: `Invalid status value: ${filters.status}`,
+      },
+    };
+  }
+
   const whereConditions: Prisma.UsersWhereInput = {
     AND: [
       filters.status ? { status: filters.status } : {},
@@ -30,6 +45,8 @@ export async function getUsers(
         : {},
     ],
   };
+
+  console.log("Where conditions:", whereConditions);
 
   try {
     const [totalUsers, users] = await Promise.all([

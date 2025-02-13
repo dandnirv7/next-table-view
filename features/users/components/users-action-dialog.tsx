@@ -1,4 +1,6 @@
 "use client";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { formSchema, User, UserForm } from "../types/users";
 import { InnerFormAction } from "./inner-form-action";
+import { useRouter } from "next/navigation";
 
 interface Props {
   currentRow: User;
@@ -23,41 +26,91 @@ interface Props {
 }
 
 export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
-  const form = useForm<UserForm>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      fullName: currentRow.fullName,
-      username: currentRow.username,
-      email: currentRow.email,
-      role: currentRow.role,
-      password: "",
-      confirmPassword: "",
-    },
+  const router = useRouter();
+  const [userValues, setUserValues] = useState<UserForm>({
+    fullName: currentRow.fullName,
+    username: currentRow.username,
+    email: currentRow.email,
+    role: currentRow.role,
+    password: "",
+    confirmPassword: "",
   });
 
-  const onSubmit = (values: UserForm) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { confirmPassword, password, ...filteredValues } = values;
+  const form = useForm<UserForm>({
+    resolver: zodResolver(formSchema),
+    defaultValues: userValues,
+  });
 
-    form.reset();
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">
-            {JSON.stringify(filteredValues, null, 2)}
-          </code>
-        </pre>
-      ),
+  useEffect(() => {
+    form.reset(userValues);
+  }, [userValues, form]);
+
+  const onSubmit = async (values: UserForm) => {
+    const { password, ...updatedValues } = values;
+
+    if (password !== "") {
+      (updatedValues as UserForm).password = password;
+    }
+
+    const hasChanges: boolean = Object.keys(updatedValues).some((key) => {
+      return (
+        updatedValues[key as keyof typeof updatedValues] !==
+        userValues[key as keyof typeof userValues]
+      );
     });
-    onOpenChange(false);
+
+    if (!hasChanges) {
+      toast({
+        title: "No changes detected",
+        description: "No changes were made to the user information.",
+      });
+      onOpenChange(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/users/${currentRow.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedValues),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to update user: ${errorData.error}`);
+      }
+
+      const updatedUser = await response.json();
+      setUserValues(updatedUser.data);
+
+      toast({
+        title: "Success",
+        description: "User updated successfully",
+      });
+
+      onOpenChange(false);
+      form.reset(updatedUser.data);
+      router.refresh();
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          title: "Update failed",
+          description: `Failed to update user: ${error.message}`,
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (
     <Dialog
       open={open}
       onOpenChange={(state) => {
-        form.reset();
+        if (!state) {
+          form.reset(userValues);
+        }
         onOpenChange(state);
       }}
     >
