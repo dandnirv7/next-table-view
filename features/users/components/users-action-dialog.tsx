@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,123 +11,128 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { toast } from "@/hooks/use-toast";
+import { User } from "@/types/user";
+import { ERROR_MESSAGES } from "@/utils/errorMessage";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { formSchema, User, UserForm } from "../types/users";
-import { InnerFormAction } from "./inner-form-action";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  AddUserForm,
+  addUserSchema,
+  EditUserForm,
+  editUserSchema,
+} from "../types/users";
+import { addUser } from "../utils/addUser";
+import { editUser } from "../utils/editUser";
+import { InnerFormAction } from "./inner-form-action";
 
 interface Props {
-  currentRow: User;
+  currentRow?: User;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
   const router = useRouter();
-  const [userValues, setUserValues] = useState<UserForm>({
-    fullName: currentRow.fullName,
-    username: currentRow.username,
-    email: currentRow.email,
-    role: currentRow.role,
-    password: "",
-    confirmPassword: "",
-  });
 
-  const form = useForm<UserForm>({
+  const isEdit = !!currentRow;
+  const formSchema = isEdit ? editUserSchema : addUserSchema;
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const initialDefaultValues = isEdit
+    ? {
+        ...currentRow,
+        password: "",
+        confirmPassword: "",
+        isEdit,
+      }
+    : {
+        fullName: "",
+        username: "",
+        email: "",
+        role: "",
+        password: "",
+        confirmPassword: "",
+        isEdit,
+      };
+
+  const form = useForm<AddUserForm | EditUserForm>({
     resolver: zodResolver(formSchema),
-    defaultValues: userValues,
+    defaultValues: initialDefaultValues,
   });
 
-  useEffect(() => {
-    form.reset(userValues);
-  }, [userValues, form]);
-
-  const onSubmit = async (values: UserForm) => {
-    const { password, ...updatedValues } = values;
-
-    if (password !== "") {
-      (updatedValues as UserForm).password = password;
-    }
-
-    const hasChanges: boolean = Object.keys(updatedValues).some((key) => {
-      return (
-        updatedValues[key as keyof typeof updatedValues] !==
-        userValues[key as keyof typeof userValues]
-      );
-    });
-
-    if (!hasChanges) {
-      toast({
-        title: "No changes detected",
-        description: "No changes were made to the user information.",
-      });
-      onOpenChange(false);
-      return;
-    }
-
+  const onSubmit = async (values: EditUserForm | AddUserForm) => {
+    setIsLoading(true);
     try {
-      const response = await fetch(`/api/users/${currentRow.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedValues),
-      });
+      if (isEdit) {
+        const result = await editUser(
+          values as EditUserForm,
+          currentRow!.id,
+          initialDefaultValues,
+          onOpenChange
+        );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to update user: ${errorData.error}`);
+        if (!result) {
+          return;
+        }
+      } else {
+        await addUser(values as AddUserForm);
       }
 
-      const updatedUser = await response.json();
-      setUserValues(updatedUser.data);
-
+      form.reset();
       toast({
-        title: "Success",
-        description: "User updated successfully",
+        title: isEdit
+          ? "User updated successfully!"
+          : "User added successfully!",
+        description: isEdit
+          ? "The user information has been successfully updated."
+          : "A new user has been successfully added.",
       });
 
       onOpenChange(false);
-      form.reset(updatedUser.data);
       router.refresh();
     } catch (error) {
       if (error instanceof Error) {
-        toast({
-          title: "Update failed",
-          description: `Failed to update user: ${error.message}`,
-          variant: "destructive",
-        });
+        throw new Error(ERROR_MESSAGES.CREATE_FAILED);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // const isPasswordTouched = !!form.formState.dirtyFields.password;
 
   return (
     <Dialog
       open={open}
       onOpenChange={(state) => {
-        if (!state) {
-          form.reset(userValues);
-        }
+        form.reset();
         onOpenChange(state);
       }}
     >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="text-left">
-          <DialogTitle>Edit User</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit User" : "Add New User"}</DialogTitle>
           <DialogDescription>
-            Update the user here. Click save when you&apos;re done.
+            {isEdit ? "Update the user here. " : "Create new user here. "}
+            Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="-mr-4 h-[26.25rem] w-full py-1 pr-4">
+        <ScrollArea className="h-[26.25rem] w-full pr-4 -mr-4 py-1">
           <Form {...form}>
             <InnerFormAction handleSubmit={onSubmit} />
           </Form>
         </ScrollArea>
         <DialogFooter>
-          <Button type="submit" form="user-form">
-            Save changes
+          <Button
+            type="submit"
+            form="user-form"
+            className={`${isLoading ? "opacity-50" : "opacity-100"}`}
+          >
+            {isLoading ? "Saving..." : "Save changes"}
           </Button>
         </DialogFooter>
       </DialogContent>

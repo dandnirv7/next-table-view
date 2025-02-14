@@ -1,14 +1,6 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { Row } from "@tanstack/react-table";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,82 +10,15 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useDebounce } from "@/hooks/use-debounce";
-import { useToast } from "@/hooks/use-toast";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { IconAlertTriangle, IconEdit, IconTrash } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { ChangeEvent, useState } from "react";
+import { useUsers } from "../context/users";
 import { User } from "../types/users";
-import { UsersActionDialog } from "./users-action-dialog";
 
 interface DataTableRowActionsProps {
-  row: User;
+  row: Row<User>;
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
-  const router = useRouter();
-
-  const [state, setState] = useState({
-    open: false,
-    value: "",
-    disabled: true,
-    editDialogOpen: false,
-  });
-  const { open, value, disabled, editDialogOpen } = state;
-
-  const debouncedValue = useDebounce(value, 300);
-  const currentUser = row.username;
-
-  const { toast } = useToast();
-
-  const handleDelete = async () => {
-    if (debouncedValue.trim() !== currentUser) return;
-
-    try {
-      const response = await fetch(`/api/users/${row.id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete user with ID: ${row.id}`);
-      }
-
-      toast({
-        title: "The following user has been deleted:",
-        description: (
-          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-            <code className="text-white">{JSON.stringify(row, null, 2)}</code>
-          </pre>
-        ),
-      });
-      setState((prevState) => ({
-        ...prevState,
-        open: false,
-        value: "",
-        disabled: true,
-      }));
-
-      router.refresh();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    setState((prevState) => ({
-      ...prevState,
-      value: inputValue,
-      disabled: inputValue !== currentUser,
-    }));
-  };
-
+  const { setOpen, setCurrentRow } = useUsers();
   return (
     <>
       <DropdownMenu modal={false}>
@@ -101,16 +26,17 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           <Button
             variant="ghost"
             className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-            aria-label="Open menu"
           >
             <DotsHorizontalIcon className="h-4 w-4" />
+            <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuItem
-            onClick={() =>
-              setState((prevState) => ({ ...prevState, editDialogOpen: true }))
-            }
+            onClick={() => {
+              setCurrentRow(row.original);
+              setOpen("edit");
+            }}
           >
             Edit
             <DropdownMenuShortcut>
@@ -119,9 +45,10 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() =>
-              setState((prevState) => ({ ...prevState, open: true }))
-            }
+            onClick={() => {
+              setCurrentRow(row.original);
+              setOpen("delete");
+            }}
             className="!text-red-500"
           >
             Delete
@@ -131,71 +58,6 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <AlertDialog
-        open={open}
-        onOpenChange={(isOpen) =>
-          setState((prevState) => ({ ...prevState, open: isOpen }))
-        }
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>
-              <span className="text-destructive">
-                <IconAlertTriangle
-                  className="mr-1 inline-block stroke-destructive"
-                  size={18}
-                />
-                Delete User
-              </span>
-            </AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="space-y-4">
-                <p className="mb-2">
-                  Are you sure you want to delete{" "}
-                  <span className="font-bold">{row.username}</span>?
-                  <br />
-                  This action will permanently remove the user with the role of{" "}
-                  <span className="font-bold">
-                    {row.role.toUpperCase()}
-                  </span>{" "}
-                  from the system. This cannot be undone.
-                </p>
-                <Label className="my-2">
-                  Username:
-                  <Input
-                    value={value}
-                    onChange={handleInputChange}
-                    placeholder="Enter username to confirm deletion."
-                  />
-                </Label>
-                <Alert variant="destructive">
-                  <AlertTitle>Warning!</AlertTitle>
-                  <AlertDescription>
-                    Please be careful, this operation cannot be rolled back.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90"
-              disabled={disabled}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <UsersActionDialog
-        open={editDialogOpen}
-        onOpenChange={(isOpen) =>
-          setState((prevState) => ({ ...prevState, editDialogOpen: isOpen }))
-        }
-        currentRow={row}
-      />
     </>
   );
 }

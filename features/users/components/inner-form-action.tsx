@@ -11,14 +11,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { userTypes } from "../data/data";
 import { useFormContext } from "react-hook-form";
-import { UserForm } from "../types/users";
+import { AddUserForm, EditUserForm } from "../types/users";
 
 type InnerFormActionProps = {
-  handleSubmit: (values: UserForm) => void;
+  handleSubmit: (values: EditUserForm | AddUserForm) => void;
 };
 
 export const InnerFormAction = ({ handleSubmit }: InnerFormActionProps) => {
-  const form = useFormContext<UserForm>();
+  const form = useFormContext<EditUserForm | AddUserForm>();
   const isPasswordTouched = !!form.formState.dirtyFields.password;
 
   return (
@@ -31,15 +31,10 @@ export const InnerFormAction = ({ handleSubmit }: InnerFormActionProps) => {
         control={form.control}
         name="fullName"
         render={({ field }) => (
-          <FormItem className="grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0">
+          <FormItem className="grid items-center grid-cols-6 space-y-0 gap-x-4 gap-y-1">
             <FormLabel className="col-span-2 text-right">Full Name</FormLabel>
             <FormControl>
-              <Input
-                placeholder="John Doe"
-                className="col-span-4"
-                autoComplete="off"
-                {...field}
-              />
+              <Input placeholder="john_doe" className="col-span-4" {...field} />
             </FormControl>
             <FormMessage className="col-span-4 col-start-3" />
           </FormItem>
@@ -49,7 +44,7 @@ export const InnerFormAction = ({ handleSubmit }: InnerFormActionProps) => {
         control={form.control}
         name="username"
         render={({ field }) => (
-          <FormItem className="grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0">
+          <FormItem className="grid items-center grid-cols-6 space-y-0 gap-x-4 gap-y-1">
             <FormLabel className="col-span-2 text-right">Username</FormLabel>
             <FormControl>
               <Input placeholder="john_doe" className="col-span-4" {...field} />
@@ -62,7 +57,7 @@ export const InnerFormAction = ({ handleSubmit }: InnerFormActionProps) => {
         control={form.control}
         name="email"
         render={({ field }) => (
-          <FormItem className="grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0">
+          <FormItem className="grid items-center grid-cols-6 space-y-0 gap-x-4 gap-y-1">
             <FormLabel className="col-span-2 text-right">Email</FormLabel>
             <FormControl>
               <Input
@@ -75,11 +70,12 @@ export const InnerFormAction = ({ handleSubmit }: InnerFormActionProps) => {
           </FormItem>
         )}
       />
+
       <FormField
         control={form.control}
         name="role"
         render={({ field }) => (
-          <FormItem className="grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0">
+          <FormItem className="grid items-center grid-cols-6 space-y-0 gap-x-4 gap-y-1">
             <FormLabel className="col-span-2 text-right">Role</FormLabel>
             <SelectDropdown
               defaultValue={field.value}
@@ -99,7 +95,7 @@ export const InnerFormAction = ({ handleSubmit }: InnerFormActionProps) => {
         control={form.control}
         name="password"
         render={({ field }) => (
-          <FormItem className="grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0">
+          <FormItem className="grid items-center grid-cols-6 space-y-0 gap-x-4 gap-y-1">
             <FormLabel className="col-span-2 text-right">Password</FormLabel>
             <FormControl>
               <PasswordInput
@@ -116,7 +112,7 @@ export const InnerFormAction = ({ handleSubmit }: InnerFormActionProps) => {
         control={form.control}
         name="confirmPassword"
         render={({ field }) => (
-          <FormItem className="grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0">
+          <FormItem className="grid items-center grid-cols-6 space-y-0 gap-x-4 gap-y-1">
             <FormLabel className="col-span-2 text-right">
               Confirm Password
             </FormLabel>

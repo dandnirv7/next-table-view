@@ -5,7 +5,7 @@ import { Table } from "@tanstack/react-table";
 import { useTransition } from "react";
 import { statusTypes, userTypes } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { DataTableViewOptions } from "./data-table-view-options";
+import TableToolbarActions from "./table-toolbar-actions";
 import { useTableFilters } from "./use-table-filters";
 
 interface DataTableToolbarProps<TData> {
@@ -70,7 +70,7 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <TableToolbarActions table={table} />
     </div>
   );
 }

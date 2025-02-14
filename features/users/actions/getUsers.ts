@@ -46,8 +46,6 @@ export async function getUsers(
     ],
   };
 
-  console.log("Where conditions:", whereConditions);
-
   try {
     const [totalUsers, users] = await Promise.all([
       prisma.users.count({ where: whereConditions }),
