@@ -15,14 +15,14 @@ const TableToolbarActions = <TData,>({
   const { setOpen } = useUsers();
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-row gap-2 ">
       <Button
         variant="outline"
         onClick={() => setOpen("add")}
         size="sm"
-        className="ml-auto hidden h-8 lg:flex"
+        className="flex w-full h-8 ml-auto"
       >
-        <IconUserPlus className="mr-2 h-4 w-4" />
+        <IconUserPlus className="w-4 h-4 mr-2" />
         Add User
       </Button>
 
@@ -35,9 +35,9 @@ const TableToolbarActions = <TData,>({
           })
         }
         size="sm"
-        className="ml-auto hidden h-8 lg:flex"
+        className="w-full h-8 ml-auto "
       >
-        <IconDownload className="mr-2 h-4 w-4" />
+        <IconDownload className="w-4 h-4 mr-2" />
         Export
       </Button>
 

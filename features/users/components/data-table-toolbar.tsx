@@ -33,13 +33,13 @@ export function DataTableToolbar<TData>({
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-col-reverse items-start flex-1 gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
+    <div className="flex flex-col justify-between gap-4 md:items-center md:flex-row">
+      <div className="flex flex-col-reverse items-end justify-end flex-1 md:justify-start gap-y-2 sm:flex-row sm:space-x-2">
         <Input
           placeholder="Filter users..."
           value={searchQuery ?? ""}
           onChange={(e) => handleSearch(e.target.value)}
-          className="h-8 w-[150px] lg:w-[250px]"
+          className="h-8 w-[200px] lg:w-[250px]"
         />
         <div className="flex gap-x-2">
           {table.getColumn("status") && (
