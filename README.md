@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shadcn View Table (Next)
 
-## Getting Started
+A modern data table component built with Next.js and Shadcn UI, featuring server-side sorting, pagination, and filtering capabilities.
 
-First, run the development server:
+<img width="1440" alt="Screenshot 2025-02-15 at 8 03 07 PM" src="https://github.com/user-attachments/assets/a53123c3-45d1-46df-8e8d-549c84383cd0">
+
+## Features
+
+- 🌓 Light/dark mode toggle
+- 📱 Fully responsive design
+- 📊 Server-side pagination
+- 🔍 Advanced filtering
+- ↕️ Column sorting
+- 📎 Export to CSV
+- 🎯 Column visibility toggle
+- 🔒 Row selection
+- 🚀 Fast and optimized performance
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Styling:** TailwindCSS
+- **UI Components:** shadcn/ui
+- **Table Management:** @tanstack/react-table
+- **Database ORM:** Prisma
+- **URL State Management:** nuqs
+- **Type Validation:** Zod
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- Node.js 18+
+- PNPM package manager
+- PostgreSQL database
+
+## Running Locally
+
+1. Clone the repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/dandnirv7/next-table-view
+cd next-table-view
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies using pnpm
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Copy the `.env.example` to `.env` and update the variables
 
-## Learn More
+```bash
+cp .env.example .env
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Update the `.env` file with your database credentials:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/your_database"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Run database migrations
 
-## Deploy on Vercel
+```bash
+npx prisma migrate dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+6. Seed the database
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npx prisma db seed
+```
+
+7. Start the development server
+
+```bash
+pnpm dev
+```
+
+The application will be available at `http://localhost:3000`
+
+## Database Schema
+
+```prisma
+model Users {
+  id        String    @id @default(uuid()) @db.Uuid
+  email     String    @unique
+  username  String    @unique
+  fullName  String
+  password  String
+  status    Status    @default(active)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  role      String    @default("user")
+}
+
+enum Status {
+  active
+  inactive
+}
+```
+
+## API Routes
+
+| Endpoint          | Method | Description                                         | Query Parameters                                                |
+| ----------------- | ------ | --------------------------------------------------- | --------------------------------------------------------------- |
+| `/api/users`      | GET    | Fetch users with pagination, sorting, and filtering | `page`, `pageSize`, `sort`, `order`, `search`, `status`, `role` |
+| `/api/users/{id}` | GET    | Get single user by ID                               | -                                                               |
+| `/api/users`      | POST   | Create new user                                     | -                                                               |
+| `/api/users/{id}` | PUT    | Full update of data                                 | -                                                               |
+| `/api/users/{id}` | PATCH  | Partial update of data                              | -                                                               |
+| `/api/users/{id}` | DELETE | Delete user                                         | -                                                               |
+
+### Query Parameters Details
+
+- `page`: Current page number (default: 1)
+- `pageSize`: Number of items per page (default: 10)
+- `sort`: Column to sort by (e.g., 'email', 'username')
+- `order`: Sort order ('asc' or 'desc')
+- `search`: Search term for filtering
+- `status`: Filter by user status ('active' or 'inactive')
+- `role`: Filter by user role ('user', 'admin' or 'super admin')
+
+## Environment Variables
+
+```env
+DATABASE_URL=
+BASE_URL_DEV=
+BASE_URL_PROD=
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Shadcn UI](https://ui.shadcn.com/) for the beautiful components
+- [Tanstack Table](https://tanstack.com/table/v8) for the powerful table features
+- [Prisma](https://www.prisma.io/) for the excellent database toolkit
