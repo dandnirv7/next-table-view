@@ -17,7 +17,7 @@ import { User } from "@/types/user";
 import { ERROR_MESSAGES } from "@/utils/errorMessage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import {
   AddUserForm,
@@ -40,7 +40,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
 
   const isEdit = !!currentRow;
   const formSchema = isEdit ? editUserSchema : addUserSchema;
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isPending, startTransition] = useTransition();
 
   const initialDefaultValues = isEdit
     ? {
@@ -64,46 +64,43 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
     defaultValues: initialDefaultValues,
   });
 
-  const onSubmit = async (values: EditUserForm | AddUserForm) => {
-    setIsLoading(true);
-    try {
-      if (isEdit) {
-        const result = await editUser(
-          values as EditUserForm,
-          currentRow!.id,
-          initialDefaultValues,
-          onOpenChange
-        );
+  const onSubmit = (values: EditUserForm | AddUserForm) => {
+    startTransition(async () => {
+      try {
+        if (isEdit) {
+          const result = await editUser(
+            values as EditUserForm,
+            currentRow!.id,
+            initialDefaultValues,
+            onOpenChange
+          );
 
-        if (!result) {
-          return;
+          if (!result) {
+            return;
+          }
+        } else {
+          await addUser(values as AddUserForm);
         }
-      } else {
-        await addUser(values as AddUserForm);
-      }
 
-      form.reset();
-      toast({
-        title: isEdit
-          ? "User updated successfully!"
-          : "User added successfully!",
-        description: isEdit
-          ? "The user information has been successfully updated."
-          : "A new user has been successfully added.",
-      });
+        form.reset();
+        toast({
+          title: isEdit
+            ? "User updated successfully!"
+            : "User added successfully!",
+          description: isEdit
+            ? "The user information has been successfully updated."
+            : "A new user has been successfully added.",
+        });
 
-      onOpenChange(false);
-      router.refresh();
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(ERROR_MESSAGES.CREATE_FAILED);
+        onOpenChange(false);
+        router.refresh();
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(ERROR_MESSAGES.CREATE_FAILED);
+        }
       }
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
-
-  // const isPasswordTouched = !!form.formState.dirtyFields.password;
 
   return (
     <Dialog
@@ -130,9 +127,9 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
           <Button
             type="submit"
             form="user-form"
-            className={`${isLoading ? "opacity-50" : "opacity-100"}`}
+            className={`${isPending ? "opacity-50" : "opacity-100"}`}
           >
-            {isLoading ? "Saving..." : "Save changes"}
+            {isPending ? "Saving..." : "Save changes"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -3,6 +3,7 @@
 import { useUsers } from "../context/users";
 import { UsersActionDialog } from "./users-action-dialog";
 import { UsersDeleteDialog } from "./users-delete-dialog";
+import { UsersStatusChangeDialog } from "./users-status-dialog";
 
 export function UsersDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useUsers();
@@ -34,6 +35,18 @@ export function UsersDialogs() {
             open={open === "delete"}
             onOpenChange={() => {
               setOpen("delete");
+              setTimeout(() => {
+                setCurrentRow(null);
+              }, 500);
+            }}
+            currentRow={currentRow}
+          />
+
+          <UsersStatusChangeDialog
+            key={`user-status-${currentRow.id}`}
+            open={open === "change-status"}
+            onOpenChange={() => {
+              setOpen("change-status");
               setTimeout(() => {
                 setCurrentRow(null);
               }, 500);
