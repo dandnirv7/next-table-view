@@ -24,12 +24,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import { User } from "../types/users";
-import { DataTableToolbar } from "./data-table-toolbar";
+import { DataTableToolbar } from "./data-table/data-table-toolbar";
 
-import { DataTablePagination } from "./data-table-pagination";
-import { useTablePagination } from "./use-table-pagination";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { User } from "@/types/user";
+import { DataTablePagination } from "./data-table/data-table-pagination";
+import { useTablePagination } from "./use-table-pagination";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

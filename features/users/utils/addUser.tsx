@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES } from "@/utils/errorMessage";
-import { AddUserForm } from "../types/users";
+import { AddUserForm } from "../data/schema";
 
 export const addUser = async (values: AddUserForm) => {
   const response = await fetch("/api/users", {

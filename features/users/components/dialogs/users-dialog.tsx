@@ -1,6 +1,6 @@
 "use client";
 
-import { useUsers } from "../context/users";
+import { useUsers } from "@/features/users/context/users-context";
 import { UsersActionDialog } from "./users-action-dialog";
 import { UsersDeleteDialog } from "./users-delete-dialog";
 import { UsersStatusChangeDialog } from "./users-status-dialog";

@@ -1,7 +1,7 @@
 import prisma from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { selectOptions } from "../lib/users";
-import { GetUsersResponse, User } from "../types/users";
+import { GetUsersResponse, User } from "@/types/user";
 
 export async function getUsers(
   page: number = 1,
@@ -16,7 +16,7 @@ export async function getUsers(
   const validStatus = ["active", "inactive"];
   if (filters.status && !validStatus.includes(filters.status)) {
     return {
-      status: false,
+      status: "success",
       data: {
         users: [],
         limit: 0,
@@ -64,7 +64,7 @@ export async function getUsers(
     const currentPage = page > totalPages ? totalPages : page;
 
     return {
-      status: true,
+      status: "success",
       data: {
         users: users,
         limit: perPage,
@@ -75,9 +75,8 @@ export async function getUsers(
       },
     };
   } catch (error) {
-    console.error("Error fetching users:", error);
     return {
-      status: false,
+      status: "error",
       data: {
         users: [],
         limit: 0,

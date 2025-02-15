@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { useUsers } from "@/features/users/context/users-context";
+import { exportTableToCSV } from "@/features/users/utils/exportTable";
 import { IconDownload, IconUserPlus } from "@tabler/icons-react";
 import { Table } from "@tanstack/react-table";
-import { useUsers } from "../context/users";
-import { DataTableViewOptions } from "./data-table-view-options";
-import { exportTableToCSV } from "./export";
+import { DataTableViewOptions } from "../data-table/data-table-view-options";
 
 interface TabletoolbarActionsProps<TData> {
   table: Table<TData>;

@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { IconAlertTriangle } from "@tabler/icons-react";
-import { toast } from "@/hooks/use-toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { User } from "../types/users";
-import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
+import { User } from "@/types/user";
 import { ERROR_MESSAGES } from "@/utils/errorMessage";
+import { IconAlertTriangle } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 interface Props {
   open: boolean;
@@ -71,7 +71,7 @@ export function UsersDeleteDialog({ open, onOpenChange, currentRow }: Props) {
       title={
         <span className="text-destructive">
           <IconAlertTriangle
-            className="mr-1 inline-block stroke-destructive"
+            className="inline-block mr-1 stroke-destructive"
             size={18}
           />{" "}
           Delete User

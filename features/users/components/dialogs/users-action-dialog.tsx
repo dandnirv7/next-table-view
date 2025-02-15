@@ -11,7 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import {
+  AddUserForm,
+  addUserSchema,
+  EditUserForm,
+  editUserSchema,
+} from "@/features/users/data/schema";
+import { addUser } from "@/features/users/utils/addUser";
+import { editUser } from "@/features/users/utils/editUser";
 import { toast } from "@/hooks/use-toast";
 import { User } from "@/types/user";
 import { ERROR_MESSAGES } from "@/utils/errorMessage";
@@ -19,15 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
-import {
-  AddUserForm,
-  addUserSchema,
-  EditUserForm,
-  editUserSchema,
-} from "../types/users";
-import { addUser } from "../utils/addUser";
-import { editUser } from "../utils/editUser";
-import { InnerFormAction } from "./inner-form-action";
+import { InnerFormAction } from "../table-actions/inner-form-action";
 
 interface Props {
   currentRow?: User;

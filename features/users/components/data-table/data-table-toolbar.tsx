@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { statusTypes, userTypes } from "@/features/users/data/data";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
 import { useTransition } from "react";
-import { statusTypes, userTypes } from "../data/data";
+import TableToolbarActions from "../table-actions/table-toolbar-actions";
+import { useTableFilters } from "../use-table-filters";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import TableToolbarActions from "./table-toolbar-actions";
-import { useTableFilters } from "./use-table-filters";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;

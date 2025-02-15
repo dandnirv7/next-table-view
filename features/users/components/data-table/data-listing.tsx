@@ -1,8 +1,8 @@
 import { searchParamsCache } from "@/lib/search-params";
-import { DataTable } from "./data-table";
-import { getUsers } from "../actions/getUsers";
+import { User } from "@/types/user";
+import { getUsers } from "../../actions/getUsers";
+import { DataTable } from "../data-table";
 import { columns } from "./columns";
-import { User } from "../types/users";
 
 export default async function DataListing({}) {
   const page = searchParamsCache.get("page") || 1;

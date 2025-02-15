@@ -1,6 +1,6 @@
-import { ERROR_MESSAGES } from "@/utils/errorMessage";
-import { EditUserForm } from "../types/users";
 import { toast } from "@/hooks/use-toast";
+import { ERROR_MESSAGES } from "@/utils/errorMessage";
+import { EditUserForm } from "../data/schema";
 
 export const editUser = async (
   values: EditUserForm,

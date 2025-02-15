@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useState } from "react";
-import { User } from "../types/users";
 import useDialogState from "@/hooks/use-dialog-state";
+import { User } from "@/types/user";
 
 type UsersDialogType = "add" | "edit" | "delete" | "change-status";
 

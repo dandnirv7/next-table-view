@@ -9,9 +9,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { userTypes } from "../data/data";
 import { useFormContext } from "react-hook-form";
-import { AddUserForm, EditUserForm } from "../types/users";
+import { userTypes } from "@/features/users/data/data";
+import { AddUserForm, EditUserForm } from "@/features/users/data/schema";
 
 type InnerFormActionProps = {
   handleSubmit: (values: EditUserForm | AddUserForm) => void;

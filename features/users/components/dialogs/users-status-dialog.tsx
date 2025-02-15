@@ -2,13 +2,13 @@
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useUsers } from "@/features/users/context/users-context";
 import { toast } from "@/hooks/use-toast";
+import { User } from "@/types/user";
 import { ERROR_MESSAGES } from "@/utils/errorMessage";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { useUsers } from "../context/users";
-import { User } from "../types/users";
 
 interface Props {
   open: boolean;
@@ -68,7 +68,7 @@ export function UsersStatusChangeDialog({
       title={
         <span className="text-yellow-500">
           <IconAlertTriangle
-            className="mr-1 inline-block stroke-yellow-500"
+            className="inline-block mr-1 stroke-yellow-500"
             size={18}
           />{" "}
           Change User Status

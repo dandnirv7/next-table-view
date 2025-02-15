@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+const userStatusSchema = z.union([z.literal("active"), z.literal("inactive")]);
+
+const userRoleSchema = z.union([
+  z.literal("super admin"),
+  z.literal("admin"),
+  z.literal("user"),
+]);
+
 const regexLowercase = /[a-z]/;
 const regexUppercase = /[A-Z]/;
 const regexDigit = /\d/;
@@ -28,8 +36,8 @@ export const UserSchema = z.object({
     .refine((value) => regexSpecialChar.test(value), {
       message: "Password must contain at least one special character",
     }),
-  role: z.enum(["super admin", "admin", "user"]).optional(),
-  status: z.enum(["active", "inactive"]).optional(),
+  role: userRoleSchema.optional(),
+  status: userStatusSchema.optional(),
 });
 
 export type UserData = z.infer<typeof UserSchema>;

@@ -3,10 +3,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { User } from "@/types/user";
 import { ColumnDef } from "@tanstack/react-table";
-import { callTypes, userTypes } from "../data/data";
+import { callTypes, userTypes } from "@/features/users/data/data";
 import { DataTableColumnHeader } from "./data-table-column-header";
-import { User } from "../types/users";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 export const columns: ColumnDef<User>[] = [
@@ -56,7 +56,7 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="Email" />
     ),
     cell: ({ row }) => (
-      <div className="w-fit truncate">{row.getValue("email")}</div>
+      <div className="truncate w-fit">{row.getValue("email")}</div>
     ),
   },
 

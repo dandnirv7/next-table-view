@@ -1,9 +1,9 @@
 import { SiteHeader } from "@/components/layouts/site-header";
 import { searchParamsCache } from "@/lib/search-params";
 import { SearchParams } from "nuqs";
-import DataListing from "./components/data-listing";
-import { UsersDialogs } from "./components/users-dialog";
-import UsersProviders from "./context/users";
+import DataListing from "./components/data-table/data-listing";
+import { UsersDialogs } from "./components/dialogs/users-dialog";
+import UsersProviders from "./context/users-context";
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
